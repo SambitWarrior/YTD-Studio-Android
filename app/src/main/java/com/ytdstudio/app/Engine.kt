@@ -25,7 +25,7 @@ import java.io.File
 import java.util.UUID
 import kotlin.math.min
 
-/** Job queue, settings and the /api/* routes used by the WebView UI. */
+/** Job queue, settings and the API routes used by the WebView UI. */
 object Engine {
     private lateinit var app: Context
     private lateinit var prefs: SharedPreferences
