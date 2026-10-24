@@ -378,7 +378,6 @@ object Engine {
         if (prefs.getString("cookies", "none") == "file" && cookieFile().isFile) {
             req.addOption("--cookies", cookieFile().absolutePath)
         }
-        if (ytdlpVersion >= "2025.11") req.addOption("--remote-components", "ejs:github")
         if (clientArgs != null) req.addOption("--extractor-args", clientArgs)
         return req
     }
