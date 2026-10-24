@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YTD Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ffd60a'/%3E%3Cpath d='M5 18c4-6 7-6 11 0s7 6 11 0' fill='none' stroke='%230d0d0d' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:wght@400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abyss:#0d0d0d; --rail:#000000; --deep:#181818; --tide:#2a2a2a;
+  --foam:#f6f3e7; --mist:#a9a591; --line:rgba(246,243,231,.15);
+  --sun:#ffd60a; --ok:#f6f3e7; --bad:#ff6b5a;
+  --display:"Bricolage Grotesque","Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+  --body:"Figtree","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--abyss);color:var(--foam);font:400 15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sun);outline-offset:2px}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+.app{display:grid;grid-template-columns:224px 1fr;height:100vh}
+.rail{background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 14px 18px;gap:4px}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 10px 22px;font:700 21px/1 var(--display);letter-spacing:-.01em}
+.brand .mark{width:34px;height:34px;border-radius:10px;background:var(--sun);display:grid;place-items:center;color:#0d0d0d}
+.brand .mark svg{width:22px;height:22px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:none;color:var(--mist);text-align:left;font-weight:600}
+.nav:hover{background:rgba(255,255,255,.05);color:var(--foam)}
+.nav[aria-current=page]{background:var(--sun);color:#0d0d0d}
+.nav[aria-current=page] .badge{background:#0d0d0d;color:var(--sun)}
+.nav .badge{margin-left:auto;background:var(--sun);color:#0d0d0d;border-radius:999px;font-size:12px;font-weight:700;padding:0 8px;min-width:22px;text-align:center}
+.grow{flex:1}
+.health{display:grid;gap:6px;padding:12px;font-size:13px;color:var(--mist);border-top:1px solid var(--line);margin-top:8px}
+.health div{display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--sun);flex:none}
+.dot.bad{background:var(--bad)}
+.quit{margin-top:6px}
+
+.main{overflow:auto;padding:30px clamp(20px,4vw,52px) 60px}
+.wrap{max-width:960px;margin:0 auto}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px}
+h1{font:700 40px/1.05 var(--display);letter-spacing:-.02em}
+.live{text-align:right}
+.live strong{color:var(--sun);display:block;font:700 26px/1.1 var(--display);font-variant-numeric:tabular-nums}
+.live span{color:var(--mist);font-size:13.5px}
+
+.intake{background:var(--deep);border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:12px}
+.field{display:flex;align-items:center;gap:6px;background:var(--abyss);border:1px solid var(--line);border-radius:12px;padding:5px 6px 5px 16px}
+.field:focus-within{border-color:var(--sun)}
+.field input{flex:1;min-width:0;background:none;border:0;outline:0;font-size:17px;padding:9px 0}
+.field input::placeholder{color:var(--mist)}
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.sel{background:var(--abyss);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:40px}
+.sw{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.sw input{appearance:none;width:38px;height:22px;border-radius:999px;background:rgba(255,255,255,.14);position:relative;transition:background .15s;cursor:pointer}
+.sw input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:var(--foam);transition:transform .15s}
+.sw input:checked{background:var(--sun)}
+.sw input:checked::after{transform:translateX(16px);background:#0d0d0d}
+.where{display:inline-flex;align-items:center;gap:8px;max-width:340px;background:none;border:0;color:var(--mist);padding:6px 8px;border-radius:8px}
+.where:hover{color:var(--foam);background:rgba(255,255,255,.05)}
+.where span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spacer{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:transparent;border-radius:10px;padding:9px 16px;font-weight:600;min-height:40px}
+.btn:hover{background:rgba(255,255,255,.06)}
+.btn.primary{background:var(--sun);border-color:var(--sun);color:#0d0d0d;font-weight:700;padding:9px 22px}
+.btn.primary:hover{background:#ffe24d}
+.ib{width:38px;height:38px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--mist)}
+.ib:hover{color:var(--foam);background:rgba(255,255,255,.07)}
+.field .ib{border:0}
+
+.bar{display:flex;align-items:center;gap:6px;margin:30px 0 6px;border-bottom:1px solid var(--line)}
+.tab{background:none;border:0;color:var(--mist);padding:10px 14px;font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab:hover{color:var(--foam)}
+.tab[aria-selected=true]{color:var(--foam);border-bottom-color:var(--sun)}
+.tab small{margin-left:6px;font-size:13px;font-variant-numeric:tabular-nums;opacity:.75}
+.bar .btn{margin:0 0 6px auto;min-height:34px;padding:5px 12px;font-size:14px}
+
+.job{display:grid;grid-template-columns:152px 1fr auto;gap:20px;align-items:center;padding:18px 2px;border-bottom:1px solid var(--line)}
+.thumb{aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:var(--tide);display:grid;place-items:center;color:rgba(246,243,231,.35)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.title{font:600 16px/1.35 var(--body);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-top:6px;color:var(--mist);font-size:13.5px}
+.pill{display:inline-flex;align-items:center;gap:7px;padding:2px 11px 2px 9px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--foam);font-size:13px;font-weight:600}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--mist)}
+.job[data-state=downloading] .pill i,.job[data-state=starting] .pill i,.job[data-state=processing] .pill i{background:var(--sun)}
+.job[data-state=done] .pill i{background:var(--ok)}
+.job[data-state=error] .pill i{background:var(--bad)}
+.track{height:10px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;margin:12px 0 8px}
+.fill{height:100%;width:0;border-radius:999px;background-color:var(--sun);transition:width .5s ease}
+.job[data-state=downloading] .fill,.job[data-state=processing] .fill{
+  background-image:linear-gradient(135deg,rgba(0,0,0,.28) 25%,transparent 25%,transparent 50%,rgba(0,0,0,.28) 50%,rgba(0,0,0,.28) 75%,transparent 75%);
+  background-size:14px 14px;animation:drift .9s linear infinite}
+.job[data-state=processing] .fill{width:100%!important;opacity:.85}
+.job[data-state=done] .fill{background-color:var(--ok)}
+.job[data-state=error] .fill{background-color:var(--bad)}
+.job[data-state=cancelled] .fill{background-color:var(--mist)}
+@keyframes drift{to{background-position-x:14px}}
+.stats{display:flex;flex-wrap:wrap;gap:2px 18px;color:var(--mist);font-size:13.5px;font-variant-numeric:tabular-nums;min-height:20px}
+.stats .pct{color:var(--foam);font-weight:700}
+.err{margin-top:6px;color:var(--bad);font-size:13.5px;line-height:1.4}
+.acts{display:flex;gap:6px}
+.job [data-act]{display:none}
+.job[data-group=active] [data-act=cancel],
+.job[data-state=done] [data-act=open],.job[data-state=done] [data-act=folder],
+.job[data-group=done] [data-act=remove],
+.job[data-group=failed] [data-act=retry],.job[data-partial="1"] [data-act=retry],.job[data-group=failed] [data-act=remove]{display:grid}
+
+.empty{text-align:center;padding:64px 20px;color:var(--mist)}
+.empty svg{width:96px;height:56px;margin-bottom:14px;fill:none;stroke:var(--sun);stroke-width:3;stroke-linecap:round}
+.empty h2{font:600 19px/1.3 var(--display);color:var(--foam);margin-bottom:4px}
+
+.setting{display:grid;grid-template-columns:minmax(0,270px) 1fr;gap:10px 44px;padding:24px 0;border-top:1px solid var(--line)}
+.setting h3{font:600 16px/1.3 var(--body)}
+.setting p{color:var(--mist);font-size:14px;margin-top:4px;max-width:46ch}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.path{flex:1;min-width:180px;background:var(--abyss);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-height:40px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+input[type=range]{accent-color:var(--sun);width:200px}
+.val{font:700 20px/1 var(--display);min-width:1.5ch;font-variant-numeric:tabular-nums}
+.sub-row{margin-top:12px}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,16px);background:var(--foam);color:var(--abyss);padding:11px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:.2s;max-width:min(560px,92vw);z-index:5}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.bad{background:var(--bad)}
+.veil{position:fixed;inset:0;background:rgba(0,0,0,.95);display:grid;place-items:center;text-align:center;z-index:9;padding:24px}
+.veil h2{font:700 30px/1.2 var(--display);margin-bottom:6px}
+.veil p{color:var(--mist)}
+
+@media (max-width:760px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr;height:auto;min-height:100vh}
+  .rail{flex-direction:row;align-items:center;padding:10px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line)}
+  .brand{padding:0 8px 0 4px}.brand b{display:none}
+  .health{display:none}.nav{width:auto}.quit{margin:0}
+  .main{overflow:visible;padding-top:22px}
+  h1{font-size:32px}
+  .job{grid-template-columns:100px 1fr;gap:12px 14px}
+  .acts{grid-column:1/-1}
+  .setting{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .fill{animation:none!important;transition:none}.toast{transition:none}
+}
+body{padding-top:env(safe-area-inset-top)}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" aria-label="Main">
+    <div class="brand"><span class="mark"><svg class="i" viewBox="0 0 24 24"><path d="M3 15c3-6 6-6 9 0s6 6 9 0"/><path d="M3 9c3-6 6-6 9 0s6 6 9 0" opacity=".5"/></svg></span><b>YTD Studio</b></div>
+    <button class="nav" data-view="downloads" aria-current="page"><svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Downloads<span class="badge" id="navBadge" hidden>0</span></button>
+    <button class="nav" data-view="settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Settings</button>
+    <div class="grow"></div>
+    <div class="health" id="health"></div>
+    <button class="nav quit" id="quitBtn" hidden><svg class="i" viewBox="0 0 24 24"><path d="M12 3v8M6.3 7.5a8 8 0 1 0 11.4 0"/></svg>Quit</button>
+  </nav>
+
+  <main class="main">
+    <div class="wrap">
+      <section id="view-downloads">
+        <div class="head">
+          <h1>Downloads</h1>
+          <div class="live"><strong id="liveSpeed">0 B/s</strong><span id="liveText">Idle</span></div>
+        </div>
+
+        <div class="intake">
+          <div class="field">
+            <input id="url" type="text" placeholder="Paste a YouTube link, Shorts or playlist" autocomplete="off" spellcheck="false" aria-label="Video link">
+            <button class="ib" id="pasteBtn" title="Paste from clipboard" aria-label="Paste from clipboard"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></svg></button>
+          </div>
+          <div class="controls">
+            <select class="sel" id="fmt" aria-label="Quality"></select>
+            <label class="sw"><input type="checkbox" id="pl"><span>Whole playlist</span></label>
+            <button class="where" id="whereBtn" title="Open download folder"><svg class="i" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span id="whereText">...</span></button>
+            <div class="spacer"></div>
+            <button class="btn primary" id="addBtn">Download</button>
+          </div>
+        </div>
+
+        <div class="bar" role="tablist" aria-label="Filter downloads">
+          <button class="tab" role="tab" data-filter="all" aria-selected="true">All<small id="c-all">0</small></button>
+          <button class="tab" role="tab" data-filter="active" aria-selected="false">Active<small id="c-active">0</small></button>
+          <button class="tab" role="tab" data-filter="done" aria-selected="false">Finished<small id="c-done">0</small></button>
+          <button class="tab" role="tab" data-filter="failed" aria-selected="false">Failed<small id="c-failed">0</small></button>
+          <button class="btn" id="clearBtn">Clear finished</button>
+        </div>
+
+        <div id="list"></div>
+        <div class="empty" id="empty">
+          <svg viewBox="0 0 96 56"><path d="M4 36c10-18 20-18 30 0s20 18 30 0 20-18 28 0" /><path d="M4 18c10-18 20-18 30 0s20 18 30 0 20-18 28 0" opacity=".5"/></svg>
+          <h2 id="emptyTitle">Nothing here yet</h2>
+          <div id="emptyText">Paste a link above and press Enter.</div>
+        </div>
+      </section>
+
+      <section id="view-settings" hidden>
+        <div class="head"><h1>Settings</h1></div>
+
+        <div class="setting">
+          <div><h3>Save downloads to</h3><p>Files are saved to your phone's Downloads folder. Playlists get their own folder inside it.</p></div>
+          <div class="row"><div class="path" id="setDir"></div><button class="btn" id="setDirBtn" hidden>Browse</button><button class="btn" id="setDirOpen">Open folder</button></div>
+        </div>
+
+        <div class="setting">
+          <div><h3>YouTube sign-in</h3><p>YouTube sometimes asks to confirm you are not a bot. Load a cookies.txt exported from a browser where you are signed in. It stays on this phone, inside the app.</p></div>
+          <div>
+            <select class="sel" id="setCookies" aria-label="Sign-in source">
+              <option value="none">Do not use sign-in</option>
+              <option value="file">cookies.txt file</option>
+            </select>
+            <div class="row sub-row" id="cookieFileRow" hidden><div class="path" id="setCookieFile">No file chosen</div><button class="btn" id="setCookieBtn">Choose file</button></div>
+          </div>
+        </div>
+
+        <div class="setting">
+          <div><h3>Downloads at the same time</h3><p>More is faster, but YouTube may slow you down if you go too high.</p></div>
+          <div class="row"><input type="range" id="setMax" min="1" max="5" step="1" aria-label="Simultaneous downloads"><span class="val" id="setMaxVal">3</span></div>
+        </div>
+
+        <div class="setting">
+          <div><h3>Default quality</h3><p>Used when you open the app. You can still change it for each link.</p></div>
+          <div><select class="sel" id="setFmt" aria-label="Default quality"></select></div>
+        </div>
+
+        <div class="setting">
+          <div><h3>Network</h3><p>Wi-Fi only waits for an unmetered connection before starting, to save mobile data.</p></div>
+          <div><select class="sel" id="setNet" aria-label="Network"><option value="any">Any connection</option><option value="wifi">Wi-Fi only</option></select></div>
+        </div>
+
+        <div class="setting">
+          <div><h3>Tools</h3><p>Everything here is needed for full-quality downloads.</p></div>
+          <div id="tools" style="display:grid;gap:8px"></div>
+          <div><button class="btn" id="updBtn" style="margin-top:12px">Update yt-dlp now</button></div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="veil" id="veil" hidden><div><h2 id="veilTitle">Connection lost</h2><p id="veilText">The app engine is not responding. Close and reopen the app.</p></div></div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const I = {
+  download: '<svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>',
+  x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  retry: '<svg class="i" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
+  play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>',
+  folder: '<svg class="i" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  trash: '<svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/></svg>'
+};
+const LABEL = {queued:"Queued", starting:"Starting", downloading:"Downloading", processing:"Converting", done:"Finished", error:"Failed", cancelled:"Cancelled"};
+const group = st => ["queued","starting","downloading","processing"].includes(st) ? "active" : st === "done" ? "done" : "failed";
+
+let S = null, filter = "all", view = "downloads", settingsFilled = false, fmtFilled = false;
+const rows = new Map();
+const list = $("#list");
+
+let __pickCb = null;
+window.__pickDone = p => { if (__pickCb) { const cb = __pickCb; __pickCb = null; cb({path: p || ""}); } };
+async function api(path, body) {
+  if (path === "/api/pick") return new Promise(res => { __pickCb = res; Android.pick(body.kind); });
+  const raw = Android.call(path, body === undefined ? "" : JSON.stringify(body));
+  const data = JSON.parse(raw || "{}");
+  if (data.error) throw new Error(data.error);
+  return data;
+}
+
+let toastTimer;
+function toast(msg, bad) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.toggle("bad", !!bad); t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 3800);
+}
+
+const fmtBytes = n => {
+  if (!n) return "0 MB";
+  const u = ["B","KB","MB","GB"]; let i = 0;
+  while (n >= 1024 && i < 3) { n /= 1024; i++; }
+  return n.toFixed(i > 1 ? 1 : 0) + " " + u[i];
+};
+const fmtSpeed = n => n ? fmtBytes(n) + "/s" : "";
+const fmtEta = s => {
+  if (s == null) return "";
+  s = Math.round(s); const m = Math.floor(s / 60), h = Math.floor(m / 60);
+  return h ? `${h}:${String(m % 60).padStart(2,"0")}:${String(s % 60).padStart(2,"0")}` : `${m}:${String(s % 60).padStart(2,"0")}`;
+};
+const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } };
+const btn = (act, icon, label) => `<button class="ib" data-act="${act}" title="${label}" aria-label="${label}">${I[icon]}</button>`;
+
+function makeRow(j) {
+  const el = document.createElement("article");
+  el.className = "job"; el.dataset.id = j.id;
+  el.innerHTML = `
+    <div class="thumb"><img alt="" hidden>${I.download}</div>
+    <div class="body">
+      <h3 class="title"></h3>
+      <div class="meta"><span class="pill"><i></i><b></b></span><span class="sub"></span></div>
+      <div class="track"><div class="fill"></div></div>
+      <div class="stats"><span class="pct"></span><span class="spd"></span><span class="size"></span><span class="eta"></span></div>
+      <p class="err" hidden></p>
+    </div>
+    <div class="acts">${btn("open","play","Play file")}${btn("folder","folder","Show in folder")}${btn("retry","retry","Try again")}${btn("cancel","x","Cancel")}${btn("remove","trash","Remove from list")}</div>`;
+  const img = $("img", el);
+  img.onerror = () => { img.hidden = true; };
+  return el;
+}
+
+function updateRow(el, j) {
+  const g = group(j.status);
+  el.dataset.state = j.status; el.dataset.group = g;
+  el.dataset.partial = (j.status === "done" && j.items_failed > 0) ? "1" : "0";
+  el.hidden = !(filter === "all" || filter === g);
+  $(".title", el).textContent = j.title || j.url;
+  const img = $("img", el);
+  if (j.thumb && img.dataset.src !== j.thumb) { img.dataset.src = j.thumb; img.src = j.thumb; img.hidden = false; }
+  $(".pill b", el).textContent = LABEL[j.status] || j.status;
+  const subs = [FORMATS[j.format] || j.format];
+  if (j.count && j.index) subs.push(`Video ${j.index} of ${j.count}`);
+  else if (j.playlist) subs.push("Playlist");
+  const h = host(j.url); if (h) subs.push(h);
+  const subEl = $(".sub", el), subHtml = subs.map(s => `<span>${s.replace(/</g,"&lt;")}</span>`).join(" ");
+  if (subEl.dataset.h !== subHtml) { subEl.innerHTML = subHtml; subEl.dataset.h = subHtml; subEl.style.display = "inline-flex"; subEl.style.gap = "14px"; }
+  const pct = j.status === "done" ? 100 : (j.status === "queued" || j.status === "starting") ? 0 : j.progress;
+  $(".fill", el).style.width = pct + "%";
+  const st = j.status;
+  $(".pct", el).textContent = st === "downloading" ? Math.floor(j.progress) + "%" : st === "done" ? (j.items_failed > 0 ? "Finished with errors" : "Complete") : st === "processing" ? "Merging and converting" : "";
+  $(".spd", el).textContent = st === "downloading" ? fmtSpeed(j.speed) : "";
+  $(".size", el).textContent = st === "downloading" && j.total ? `${fmtBytes(j.downloaded)} of ${fmtBytes(j.total)}` : "";
+  $(".eta", el).textContent = st === "downloading" && j.eta != null ? fmtEta(j.eta) + " left" : "";
+  const err = $(".err", el);
+  err.hidden = !j.error || st === "downloading";
+  err.textContent = j.error || ""; err.title = j.detail || "";
+}
+
+function renderJobs(jobs) {
+  const seen = new Set();
+  jobs.forEach((j, i) => {
+    seen.add(j.id);
+    let el = rows.get(j.id);
+    if (!el) { el = makeRow(j); rows.set(j.id, el); }
+    updateRow(el, j);
+    const at = list.children[i];
+    if (at !== el) list.insertBefore(el, at || null);
+  });
+  for (const [id, el] of rows) if (!seen.has(id)) { el.remove(); rows.delete(id); }
+}
+
+let FORMATS = {};
+function render(s) {
+  S = s; FORMATS = s.formats;
+  if (!fmtFilled) {
+    for (const sel of [$("#fmt"), $("#setFmt")]) {
+      sel.innerHTML = Object.entries(s.formats).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+      sel.value = s.settings.default_format;
+    }
+    fmtFilled = true;
+  }
+  const jobs = s.jobs;
+  renderJobs(jobs);
+  const counts = {all: jobs.length, active: 0, done: 0, failed: 0};
+  let speed = 0, downloading = 0;
+  jobs.forEach(j => { counts[group(j.status)]++; if (j.status === "downloading") { downloading++; speed += j.speed || 0; } });
+  for (const k in counts) $("#c-" + k).textContent = counts[k];
+  $("#navBadge").hidden = !counts.active; $("#navBadge").textContent = counts.active;
+  $("#liveSpeed").textContent = speed ? fmtSpeed(speed) : "0 B/s";
+  $("#liveText").textContent = downloading ? `${downloading} downloading` : counts.active ? `${counts.active} waiting` : "Idle";
+  const visible = filter === "all" ? counts.all : counts[filter];
+  $("#empty").hidden = visible > 0;
+  if (!visible) {
+    const none = {all:["Nothing here yet","Paste a link above and press Enter."], active:["No active downloads","New downloads show up here while they run."], done:["Nothing finished yet","Completed downloads are listed here."], failed:["No failed downloads","Anything that goes wrong will appear here with a reason."]}[filter];
+    $("#emptyTitle").textContent = none[0]; $("#emptyText").textContent = none[1];
+  }
+  $("#whereText").textContent = s.settings.download_dir;
+  const i = s.info;
+  $("#health").innerHTML =
+    `<div><span class="dot"></span>yt-dlp ${i.ytdlp}</div>` +
+    `<div><span class="dot ${i.deno ? "" : "bad"}"></span>JS engine ${i.deno ? "ready" : "missing"}</div>` +
+    `<div><span class="dot ${i.ffmpeg ? "" : "bad"}"></span>ffmpeg ${i.ffmpeg ? "ready" : "missing"}</div>`;
+  $("#tools").innerHTML =
+    toolLine(true, "YTD Studio " + i.version, "Your installed version of this app.") +
+    toolLine(true, "yt-dlp " + i.ytdlp, "Updated automatically on launch.") +
+    toolLine(i.deno, i.deno ? "JS engine ready" : "JS engine missing", i.deno ? "Needed to read YouTube formats." : "Reinstall the app.") +
+    toolLine(i.ffmpeg, i.ffmpeg ? "ffmpeg found" : "ffmpeg not found", i.ffmpeg ? "Needed to merge video and audio and to make MP3 files." : "Reinstall the app.");
+  if (!settingsFilled) fillSettings(s.settings);
+}
+function toolLine(ok, title, hint) {
+  return `<div class="row" style="align-items:flex-start;flex-wrap:nowrap"><span class="dot ${ok ? "" : "bad"}" style="margin-top:8px"></span><div><b>${title}</b><div style="color:var(--mist);font-size:13.5px">${hint}</div></div></div>`;
+}
+
+function fillSettings(s) {
+  $("#setDir").textContent = s.download_dir; $("#setDir").title = s.download_dir;
+  $("#setCookies").value = s.cookies;
+  $("#cookieFileRow").hidden = s.cookies !== "file";
+  $("#setCookieFile").textContent = s.cookie_file || "No file chosen";
+  $("#setMax").value = s.max_concurrent; $("#setMaxVal").textContent = s.max_concurrent;
+  $("#setFmt").value = s.default_format; $("#setNet").value = s.wifi_only ? "wifi" : "any";
+  settingsFilled = true;
+}
+async function save(patch) {
+  try { const r = await api("/api/settings", patch); S.settings = r.settings; fillSettings(r.settings); $("#whereText").textContent = r.settings.download_dir; toast("Saved."); }
+  catch (e) { toast(e.message, true); }
+}
+async function chooseFolder() {
+  try { const r = await api("/api/pick", {kind: "folder"}); if (r.path) save({download_dir: r.path}); }
+  catch (e) { toast(e.message, true); }
+}
+
+async function addLinks() {
+  const v = $("#url").value.trim();
+  if (!v) { toast("Paste a link first.", true); $("#url").focus(); return; }
+  try {
+    const r = await api("/api/add", {url: v, playlist: $("#pl").checked, format: $("#fmt").value});
+    $("#url").value = "";
+    toast(r.added === 1 ? "Added to downloads." : r.added + " links added.");
+    tickNow();
+  } catch (e) { toast(e.message, true); }
+}
+
+async function act(what, id) {
+  try {
+    if (what === "open") await api("/api/open", {id, what: "file"});
+    else if (what === "folder") await api("/api/open", {id, what: "folder"});
+    else await api("/api/" + what, {id});
+    tickNow();
+  } catch (e) { toast(e.message, true); }
+}
+
+function setFilter(f) {
+  filter = f;
+  $$(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.filter === f)));
+  if (S) render(S);
+}
+function setView(v) {
+  view = v;
+  $("#view-downloads").hidden = v !== "downloads"; $("#view-settings").hidden = v !== "settings";
+  $$(".nav[data-view]").forEach(n => n.toggleAttribute("aria-current", n.dataset.view === v));
+  $$(".nav[data-view]").forEach(n => { if (n.dataset.view === v) n.setAttribute("aria-current", "page"); });
+  $(".main").scrollTop = 0;
+}
+
+$$(".nav[data-view]").forEach(n => n.addEventListener("click", () => setView(n.dataset.view)));
+$$(".tab").forEach(t => t.addEventListener("click", () => setFilter(t.dataset.filter)));
+list.addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (b) act(b.dataset.act, b.closest(".job").dataset.id); });
+$("#addBtn").addEventListener("click", addLinks);
+$("#url").addEventListener("keydown", e => { if (e.key === "Enter") addLinks(); });
+$("#pasteBtn").addEventListener("click", async () => {
+  try { const t = (window.Android ? Android.clipboard() : await navigator.clipboard.readText()); if (t) { $("#url").value = t.trim(); $("#url").focus(); } }
+  catch { toast("Your browser blocked clipboard access. Long-press the box and choose Paste instead.", true); }
+});
+document.addEventListener("paste", e => {
+  const tag = (document.activeElement && document.activeElement.tagName) || "";
+  if (view === "downloads" && !/INPUT|SELECT|TEXTAREA/.test(tag)) {
+    const t = (e.clipboardData.getData("text") || "").trim();
+    if (/https?:\/\//.test(t)) { $("#url").value = t; $("#url").focus(); }
+  }
+});
+$("#whereBtn").addEventListener("click", () => api("/api/open", {what: "folder"}).catch(e => toast(e.message, true)));
+$("#setDirBtn").addEventListener("click", chooseFolder);
+$("#setDirOpen").addEventListener("click", () => api("/api/open", {what: "folder"}).catch(e => toast(e.message, true)));
+$("#setCookies").addEventListener("change", e => {
+  const v = e.target.value; $("#cookieFileRow").hidden = v !== "file"; save({cookies: v});
+});
+$("#setCookieBtn").addEventListener("click", async () => {
+  try { const r = await api("/api/pick", {kind: "file"}); if (r.path) save({cookie_file: r.path, cookies: "file"}); }
+  catch (e) { toast(e.message, true); }
+});
+$("#setMax").addEventListener("input", e => { $("#setMaxVal").textContent = e.target.value; });
+$("#setMax").addEventListener("change", e => save({max_concurrent: +e.target.value}));
+$("#setNet").addEventListener("change", e => save({wifi_only: e.target.value === "wifi"}));
+$("#updBtn").addEventListener("click", async () => {
+  try { await api("/api/update", {}); toast("Updating in the background. Check the yt-dlp version in a minute."); }
+  catch (e) { toast(e.message, true); }
+});
+$("#setFmt").addEventListener("change", e => { save({default_format: e.target.value}); $("#fmt").value = e.target.value; });
+$("#clearBtn").addEventListener("click", () => api("/api/clear", {}).then(tickNow).catch(e => toast(e.message, true)));
+$("#quitBtn").addEventListener("click", async () => {
+  const active = S ? S.jobs.filter(j => group(j.status) === "active").length : 0;
+  if (active && !confirm(active + " download(s) are still running. Quit anyway?")) return;
+  try { await api("/api/quit", {}); } catch {}
+  quitting = true;
+  $("#veilTitle").textContent = "YTD Studio has stopped";
+  $("#veilText").textContent = "You can close this app.";
+  $("#veil").hidden = false;
+});
+
+let quitting = false, timer = null;
+async function tick() {
+  clearTimeout(timer);
+  try { render(await api("/api/state")); $("#veil").hidden = quitting ? false : true; }
+  catch (e) { if (!quitting) { $("#veilTitle").textContent = "Connection lost"; $("#veilText").textContent = "The app engine is not responding. Close and reopen the app."; $("#veil").hidden = false; } }
+  if (!quitting) timer = setTimeout(tick, 800);
+}
+const tickNow = () => tick();
+tick();
+</script>
+</body>
+</html>
