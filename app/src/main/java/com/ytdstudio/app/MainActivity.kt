@@ -61,13 +61,17 @@ class MainActivity : ComponentActivity() {
             setBackgroundColor(0xFF0D0D0D.toInt())
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
+            settings.textZoom = 100
             webChromeClient = WebChromeClient()
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(v: WebView, r: WebResourceRequest): Boolean {
                     // never navigate away from the app UI
                     return r.url.scheme != "file"
                 }
-                override fun onPageFinished(v: WebView, url: String) { handleShare(intent) }
+                override fun onPageFinished(v: WebView, url: String) {
+                    v.evaluateJavascript("document.documentElement.style.zoom='0.85'", null)
+                    handleShare(intent)
+                }
             }
             addJavascriptInterface(Bridge(), "Android")
             loadUrl("file:///android_asset/index.html")
