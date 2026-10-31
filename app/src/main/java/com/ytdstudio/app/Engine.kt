@@ -35,7 +35,7 @@ object Engine {
     @Volatile private var initDone = false
     @Volatile private var initError = ""
     @Volatile private var ytdlpVersion = "loading…"
-    private const val APP_VERSION = "1.1.0"
+    private const val APP_VERSION = "1.1.1"
     private const val DIR_LABEL = "Downloads/YTD Studio"
     private const val MIN_FREE = 300L * 1024 * 1024
     private val ACTIVE = setOf("starting", "downloading", "processing")
@@ -55,8 +55,8 @@ object Engine {
     /** Fallback chain: if YouTube refuses one way of asking, try the next automatically. */
     private val CLIENT_ARGS: List<String?> = listOf(
         null,
+        "youtube:player_skip=webpage,configs;player_client=android_vr,tv",
         "youtube:player_client=tv,web_safari",
-        "youtube:player_client=android_vr",
         "youtube:player_client=mweb"
     )
 
